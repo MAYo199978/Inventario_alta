@@ -182,7 +182,8 @@ $estado = $_GET['estado'] ?? '';
                             Seleccione un estado
                         </option>
                         <option value="Disponible">Disponible</option>
-                        <option value="Sin existencia">Sin existencia</option>
+                        <option value="Agotado">Agotado</option>
+                        <option value="Descontinuado">Descontinuado</option>
                     </select>
                 </div>
 
@@ -262,10 +263,15 @@ $estado = $_GET['estado'] ?? '';
 
                         <?php foreach ($productos as $producto): ?>
                             <?php
-                            $estadoClase = $producto['estado'] === 'Disponible'
-                                ? 'disponible'
-                                : 'agotado';
+                            $estadoClase = match ($producto['estado']) {
+                                'Disponible' => 'disponible',
+                                'Agotado' => 'agotado',
+                                'Descontinuado' => 'descontinuado',
+                                default => 'agotado'
+                            };
+
                             $estadoLabel = $producto['estado'];
+
                             $textoBusqueda = strtolower(
                                 trim(
                                     $producto['id'] . ' ' .
@@ -277,6 +283,7 @@ $estado = $_GET['estado'] ?? '';
                                 )
                             );
                             ?>
+
                             <tr
                                 class="fila-producto"
                                 data-busqueda="<?php echo htmlspecialchars($textoBusqueda, ENT_QUOTES, 'UTF-8'); ?>"
@@ -302,6 +309,7 @@ $estado = $_GET['estado'] ?? '';
                                             name="id"
                                             value="<?php echo (int) $producto['id']; ?>"
                                         >
+
                                         <input
                                             type="text"
                                             name="nombre"
@@ -310,6 +318,7 @@ $estado = $_GET['estado'] ?? '';
                                             aria-label="Nuevo nombre para <?php echo htmlspecialchars($producto['nombre'], ENT_QUOTES, 'UTF-8'); ?>"
                                             required
                                         >
+
                                         <button
                                             class="boton-fix-nombre"
                                             type="submit"
@@ -332,6 +341,7 @@ $estado = $_GET['estado'] ?? '';
                                             name="id"
                                             value="<?php echo (int) $producto['id']; ?>"
                                         >
+
                                         <input
                                             type="number"
                                             name="cantidad"
@@ -341,6 +351,7 @@ $estado = $_GET['estado'] ?? '';
                                             aria-label="Nueva cantidad para <?php echo htmlspecialchars($producto['nombre'], ENT_QUOTES, 'UTF-8'); ?>"
                                             required
                                         >
+
                                         <button
                                             class="boton-fix-correccion"
                                             type="submit"
@@ -370,6 +381,7 @@ $estado = $_GET['estado'] ?? '';
                                             name="id"
                                             value="<?php echo (int) $producto['id']; ?>"
                                         >
+
                                         <input
                                             type="number"
                                             name="precio"
@@ -380,6 +392,7 @@ $estado = $_GET['estado'] ?? '';
                                             aria-label="Nuevo precio para <?php echo htmlspecialchars($producto['nombre'], ENT_QUOTES, 'UTF-8'); ?>"
                                             required
                                         >
+
                                         <button
                                             class="boton-fix-precio"
                                             type="submit"
@@ -405,6 +418,7 @@ $estado = $_GET['estado'] ?? '';
                                             name="id"
                                             value="<?php echo (int) $producto['id']; ?>"
                                         >
+
                                         <button
                                             class="boton-eliminar"
                                             type="submit"
@@ -469,11 +483,13 @@ $estado = $_GET['estado'] ?? '';
             });
 
             const total = filas.length;
+
             resultadoBuscador.textContent = termino
                 ? `Mostrando ${visibles} de ${total} productos`
                 : `Mostrando ${total} de ${total} productos`;
 
             const filaSinResultados = document.getElementById('fila-sin-resultados');
+
             if (filaSinResultados) {
                 filaSinResultados.remove();
             }
@@ -481,12 +497,15 @@ $estado = $_GET['estado'] ?? '';
             if (visibles === 0) {
                 const filaVacia = document.createElement('tr');
                 filaVacia.id = 'fila-sin-resultados';
+
                 filaVacia.innerHTML = '<td colspan="7" class="sin-registros">No se encontraron productos que coincidan con la búsqueda.</td>';
+
                 document.getElementById('tbody-productos').appendChild(filaVacia);
             }
         };
 
         let temporizadorBusqueda;
+
         buscador.addEventListener('input', () => {
             clearTimeout(temporizadorBusqueda);
             temporizadorBusqueda = setTimeout(actualizarVista, 700);

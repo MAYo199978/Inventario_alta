@@ -1,15 +1,15 @@
-
 <?php
 
 require_once __DIR__ . '/config/conexion.php';
 require_once __DIR__ . '/src/productos.php';
+require_once __DIR__ . '/src/validaciones.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: index.php');
     exit;
 }
 
-//Obtener los datos del formulario
+// Obtener los datos del formulario
 $nombre = $_POST['nombre'] ?? '';
 $cantidad = $_POST['cantidad'] ?? '';
 $estadoProducto = $_POST['estado'] ?? '';
@@ -43,6 +43,12 @@ if (
     exit;
 }
 
+// Validar que el estado sea uno de los tres permitidos
+if (!validarEstadoProducto($estadoProducto)) {
+    header('Location: index.php?estado=estado_invalido');
+    exit;
+}
+
 // Validar y guardar el producto
 $error = guardarProducto(
     $conexion,
@@ -51,8 +57,9 @@ $error = guardarProducto(
     $estadoProducto,
     $asignado
 );
+
 if ($error !== null) {
-    header('Location: index.php?estado=' . $error);
+    header('Location: index.php?estado=' . urlencode($error));
     exit;
 }
 
